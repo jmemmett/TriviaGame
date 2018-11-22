@@ -3,7 +3,7 @@
 //------------------------------------
 
     var counterRunning = false;
-    var counter = 20;
+    var counter = 60;
     var timer;
     var total = 5 // setting the number of questions to 5
     var answers = ["d", "a", "d", "b", "b"];

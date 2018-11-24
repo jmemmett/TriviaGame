@@ -2,82 +2,70 @@
 // Global Variables
 //------------------------------------
 
-    var counterRunning = false;
-    var counter = 60;
+    var clock = 20;
+    var clockRunning = false;
     var timer;
-    var total = 5 // setting the number of questions to 5
-    var answers = ["d", "a", "d", "b", "b"];
-    var q1;
-    var q2;
-    var q3;
-    var q4;
-    var q5;
-    var results;
-    var score = 0;
-    var unanswered = 0; // initializing the score to zero
+    var allQuestionsAnswered = false;
+    var unanswered = 0;
+    
 
 //------------------------------------
 // Function Definition Declarations
 //------------------------------------
 
-    // Decrements the timer when the quiz is started
-    function decrement() {
-        counter--;
-        $("#counter").html("<h2 id='question'>Time remaining to answer these questions: " + counter + "</h2>"); // display counter
-        if ( counter === 0) {
-            clearInterval(timer);
-            submitAnswers();
-        }
-    }
-
-    // Kicked off when the Submit Answers button is clicked
-    function submitAnswers() {
-        recordAnswers();
-        validation();
-        checkAnswers();
-        displayResults();
-    }
-
-    function recordAnswers() {
-        q1 = document.forms["quizForm"]["q1"].value;
-        q2 = document.forms["quizForm"]["q2"].value;
-        q3 = document.forms["quizForm"]["q3"].value;
-        q4 = document.forms["quizForm"]["q4"].value;
-        q5 = document.forms["quizForm"]["q5"].value;
-    }
-
-    function validation() {
-        if ( counter !== 0 ) {
-            for ( var i = 1; i <= total; i++ ) {
-                if ( eval('q' + i) == null || eval('q' + i) == "" ) {
-                    alert("You missed question " + i);
-                    return false;
-                }
-            }
+    // Called when the START button is clicked
+    function countdown() {
+        if (clockRunning && clock !== 0) {
+            $("#counter").html("<h2 id='question'>Time remaining to answer these questions: " + clock + "</h2>"); // display counter on the web-page
+            clock--; 
         } else {
-            for ( var i = 1; i <= total; i++ ) {
-              // set all unanswered questions to incorrect
-              if ( eval('q' + i) == null ) {
-                  unanswered++; 
-              }
-            }
+            clockRunning = false;
+            clearInterval(timer);
+            $("#counter").html("<h2 id='question'>Time's up!</h2>");
+            $("#submit").hide();
         }
-        console.log(unanswered);
     }
 
-    function checkAnswers() {
-        for ( var i = 1; i <= total; i++ ) {
-            if( eval('q' + i) == answers[i-1]) {
-                score++;
-            } else {
+    function submitAnswers(){
+        var total = 5;
+        var score = 0;
+        
+        // Get User Input
+        var q1 = document.forms["quizForm"]["q1"].value;
+        var q2 = document.forms["quizForm"]["q2"].value;
+        var q3 = document.forms["quizForm"]["q3"].value;
+        var q4 = document.forms["quizForm"]["q4"].value;
+        var q5 = document.forms["quizForm"]["q5"].value;
+        
+        // Validation
+        for(i = 1; i <= total;i++){
+            if(eval('q'+i) == null || eval('q'+i) == ''){
+                alert('You missed question '+ i);
                 return false;
             }
         }
-    }
+        
+        // Set Correct Answers
+        var answers = ["d","a","d","b","b"];
+        
+        // Check Answers
+        for(i = 1; i <= total;i++){
+            if(eval('q'+i) == answers[i - 1]){
+                score++;
+            }
+        }
 
-    function displayResults() {
-        results = $("#results").html("<h3>You scored <span>" + score + "</span> out of <span>" + total + "</span></h3>");
-        alert("You scored " + score + " out of " + total);
+        // stop the timer
+        clearInterval(timer);
+        $("#counter").hide();
+
+        // Hide the Submit Answers button
+        $("#submit").hide();
+        
+        // Display Results
+        $("#results").show();
+        $("#results").html("<h3>You scored <span>" + score + "</span> out of <span>" + total + "</span></h3>");
+        console.log(score);
         
         return false;
     }
@@ -86,13 +74,15 @@
 // Script / Gameplay
 //------------------------------------
 
-    $("#main").hide();
-    $("#counter").hide();
+    // Initially hides the quiz elements until the start button is clicked 
+    $("#main").hide(); // Section where the quiz content is displayed
 
-    // when the user clicks the START button
+    // Listener event for the START button click
     $("#start").on("click", function() {
-        $("#start").hide(); // remove the start button from the screen
-        $("#main").show(); // show the previous hidden main section containing the questions
-        $("#counter").show(); // show the counter as it counts down
-        timer = setInterval(decrement, 1000); // find out why there is a delay before this shows up
-    });
+        clockRunning = true;
+        timer = setInterval(countdown, 1000); // Calls the  the startCountdown function and executes it every 1 second
+        $("#start").hide(); // Hides the START button
+        $("#results").hide(); // hide the results section until the end of the quiz
+        $("#main").show(); // Displays the section containing the quiz content
+        $("#submit").show();
+    })
